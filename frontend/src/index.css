@@ -1,0 +1,127 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+/* ── Global ──────────────────────────────────────────────────────── */
+html, body, #root {
+  height: 100%;
+  background-color: #030712;
+  color: #e2e8f0;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0f172a; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+/* ── Bin marker animations ───────────────────────────────────────── */
+@keyframes bin-pulse {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  70%  { transform: scale(2.2); opacity: 0;   }
+  100% { transform: scale(2.2); opacity: 0;   }
+}
+
+@keyframes truck-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-3px); }
+}
+
+@keyframes flow-anim {
+  from { stroke-dashoffset: 18; }
+  to   { stroke-dashoffset: 0;  }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg);   }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes node-glow {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1;   }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+/* ── Leaflet dark overrides ──────────────────────────────────────── */
+.leaflet-container {
+  background: #0a0f1e !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 20, 40, 0.97) !important;
+  border: 1px solid rgba(59, 130, 246, 0.25) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(59,130,246,0.1) !important;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 230px;
+}
+
+.leaflet-popup-tip-container { display: none; }
+
+.leaflet-popup-close-button {
+  color: #64748b !important;
+  top: 10px !important;
+  right: 10px !important;
+  font-size: 18px !important;
+  line-height: 1 !important;
+  z-index: 10;
+}
+
+.leaflet-popup-close-button:hover { color: #e2e8f0 !important; }
+
+.leaflet-control-zoom {
+  border: none !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4) !important;
+}
+
+.leaflet-control-zoom a {
+  background: #0f172a !important;
+  color: #94a3b8 !important;
+  border: 1px solid #1e293b !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+}
+
+.leaflet-control-attribution {
+  background: rgba(2,6,23,0.7) !important;
+  color: #334155 !important;
+  font-size: 10px !important;
+}
+
+.leaflet-control-attribution a { color: #475569 !important; }
+
+/* ── Gradient text utility ───────────────────────────────────────── */
+.gradient-text {
+  background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glass card ──────────────────────────────────────────────────── */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(30, 58, 138, 0.2);
+  border-radius: 14px;
+}
+
+/* ── Nav active indicator ────────────────────────────────────────── */
+.nav-tab-active {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
