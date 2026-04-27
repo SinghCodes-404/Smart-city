@@ -12,7 +12,7 @@ from services.websocket_manager import manager
 
 router = APIRouter()
 
-FILL_INCREMENT_PER_ITEM = 3.0   # % added to fill per detected waste item
+FILL_INCREMENT_PER_ITEM = 10.0  # % added to fill per detected waste item
 DISPATCH_THRESHOLD_PCT = 80.0   # auto-dispatch trigger level
 
 
@@ -20,6 +20,7 @@ class WasteEventIn(BaseModel):
     label: str
     confidence: float = 1.0
     timestamp: Optional[str] = None
+    source: Optional[str] = None
 
 
 def _bin_summary(b: Bin, last_event: Optional[WasteEvent]) -> dict:
@@ -139,7 +140,7 @@ async def record_event(
         except ValueError:
             pass
 
-    source = "hardware" if b.is_hardware else "api"
+    source = payload.source or ("hardware" if b.is_hardware else "api")
     event = WasteEvent(
         bin_id=bin_id,
         label=payload.label,
@@ -149,6 +150,7 @@ async def record_event(
     )
     db.add(event)
 
+    old_fill = b.current_fill_pct
     b.current_fill_pct = min(100.0, b.current_fill_pct + FILL_INCREMENT_PER_ITEM)
     db.commit()
     db.refresh(event)
@@ -173,14 +175,26 @@ async def record_event(
         },
     })
 
-    threshold_crossed = b.current_fill_pct >= DISPATCH_THRESHOLD_PCT
+    # Edge-trigger: auto-dispatch when this event crosses the threshold
+    threshold_just_crossed = old_fill < DISPATCH_THRESHOLD_PCT and b.current_fill_pct >= DISPATCH_THRESHOLD_PCT
+    if threshold_just_crossed:
+        await manager.broadcast({
+            "type": "dispatch_alert",
+            "data": {
+                "bin_id": bin_id,
+                "reason": "fill_threshold",
+                "threshold_pct": DISPATCH_THRESHOLD_PCT,
+            },
+        })
+        from services.fleet_manager import dispatch_pending_bins
+        await dispatch_pending_bins([bin_id])
 
     return {
         "status": "ok",
         "bin_id": bin_id,
         "event_id": event.id,
         "fill_pct": round(b.current_fill_pct, 1),
-        "threshold_crossed": threshold_crossed,
+        "threshold_crossed": threshold_just_crossed,
     }
 
 

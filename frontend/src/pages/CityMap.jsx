@@ -61,10 +61,10 @@ export default function CityMap() {
 
       {/* Stat row */}
       <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3 px-4 pt-3 pb-2">
-        <StatCard icon={Layers}   label="Total Bins"   value={liveSummary?.total_bins ?? state.bins.length} color="blue"   />
-        <StatCard icon={AlertTriangle} label="Critical Bins" value={liveSummary?.critical_bins ?? criticalBins.length} color={criticalBins.length > 0 ? 'red' : 'green'} sub={criticalBins.length ? 'need collection' : 'all clear'} />
-        <StatCard icon={Cpu}      label="Items Today"  value={liveSummary?.items_today ?? 0} color="violet"  />
-        <StatCard icon={Zap}      label="E-Waste Today" value={liveSummary?.ewaste_today ?? 0} color="cyan" sub="batteries detected" />
+        <StatCard icon={Layers}        label="Total Bins"    value={liveSummary?.total_bins ?? state.bins.length} color="blue"   loading={!liveSummary} />
+        <StatCard icon={AlertTriangle} label="Critical Bins" value={liveSummary?.critical_bins ?? criticalBins.length} color={criticalBins.length > 0 ? 'red' : 'green'} sub={criticalBins.length ? 'need collection' : 'all clear'} loading={!liveSummary} />
+        <StatCard icon={Cpu}           label="Items Today"   value={liveSummary?.items_today ?? 0}   color="violet" loading={!liveSummary} />
+        <StatCard icon={Zap}           label="E-Waste Today" value={liveSummary?.ewaste_today ?? 0}  color="cyan"   sub="batteries detected" loading={!liveSummary} />
       </div>
 
       {/* Main content: map + live feed */}

@@ -150,6 +150,16 @@ async def dispatch_pending_bins(bin_ids: list[str]) -> list[str]:
                 "estimated_time_min": task["estimated_time_min"],
             },
         })
+        await manager.broadcast({
+            "type": "truck_update",
+            "data": {
+                "truck_id": task["truck_id"],
+                "status": "en_route",
+                "lat": YARD[0],
+                "lng": YARD[1],
+                "load_kg": 0.0,
+            },
+        })
         asyncio.create_task(
             _drive_route(task["route_id"], task["truck_id"], task["bins"])
         )
@@ -242,6 +252,16 @@ async def _drive_route(route_id: int, truck_id: str, bin_sequence: list[str]):
             "type": "bin_update",
             "data": {"bin_id": bin_id, "fill_pct": 5.0, "last_event": None},
         })
+        await manager.broadcast({
+            "type": "truck_update",
+            "data": {
+                "truck_id": truck_id,
+                "status": "collecting",
+                "lat": tgt_lat,
+                "lng": tgt_lng,
+                "load_kg": round(total_kg, 1),
+            },
+        })
 
         cur_lat, cur_lng = tgt_lat, tgt_lng
 
@@ -288,7 +308,7 @@ async def _drive_route(route_id: int, truck_id: str, bin_sequence: list[str]):
     })
     await manager.broadcast({
         "type": "truck_update",
-        "data": {"truck_id": truck_id, "status": "idle", "lat": YARD[0], "lng": YARD[1]},
+        "data": {"truck_id": truck_id, "status": "idle", "lat": YARD[0], "lng": YARD[1], "load_kg": 0.0},
     })
 
     print(

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { useEffect } from 'react'
 import { AppProvider, useApp } from './context/AppContext'
 import { useWebSocket } from './hooks/useWebSocket'
@@ -8,10 +8,12 @@ import CityMap from './pages/CityMap'
 import FleetDispatch from './pages/FleetDispatch'
 import WasteYard from './pages/WasteYard'
 import Analytics from './pages/Analytics'
+import EdgeNode from './pages/EdgeNode'
 
 function AppShell() {
   const { dispatch } = useApp()
   const { get } = useApi()
+  const location = useLocation()
 
   // Wire up WebSocket at app root so it runs across all pages
   useWebSocket()
@@ -35,12 +37,15 @@ function AppShell() {
     <div className="flex flex-col h-full bg-[#030712]">
       <Navbar />
       <main className="flex-1 overflow-hidden">
-        <Routes>
-          <Route path="/"          element={<CityMap />} />
-          <Route path="/fleet"     element={<FleetDispatch />} />
-          <Route path="/yard"      element={<WasteYard />} />
-          <Route path="/analytics" element={<Analytics />} />
-        </Routes>
+        <div key={location.pathname} className="page-enter h-full">
+          <Routes>
+            <Route path="/"           element={<CityMap />} />
+            <Route path="/fleet"      element={<FleetDispatch />} />
+            <Route path="/yard"       element={<WasteYard />} />
+            <Route path="/analytics"  element={<Analytics />} />
+            <Route path="/edge-node"  element={<EdgeNode />} />
+          </Routes>
+        </div>
       </main>
     </div>
   )

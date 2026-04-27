@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Recycle, Leaf, AlertTriangle, Package } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import { useApi } from '../hooks/useApi'
+import { useCountUp } from '../hooks/useCountUp'
 import StatCard from '../components/Layout/StatCard'
 import { WASTE_COLORS } from '../utils/constants'
 import { formatKg } from '../utils/formatters'
@@ -45,6 +46,11 @@ function ProcessingFlow({ today }) {
   const active   = total > 0
   const pct      = (v) => total > 0 ? Math.round((v / total) * 100) : 0
 
+  const animTotal    = useCountUp(total)
+  const animEwaste   = useCountUp(ewaste)
+  const animDry      = useCountUp(dry)
+  const animLandfill = useCountUp(landfill)
+
   return (
     <div className="glass-card border border-slate-800/60 p-5">
       <div className="flex items-center justify-between mb-4">
@@ -58,80 +64,80 @@ function ProcessingFlow({ today }) {
         </div>
       </div>
 
-      {/* SVG flow diagram — viewBox 860×270 */}
-      <svg viewBox="0 0 860 270" width="100%" style={{ display: 'block' }}>
+      {/* SVG flow diagram — viewBox 860×215 */}
+      <svg viewBox="0 0 860 215" width="100%" style={{ display: 'block' }}>
 
         {/* ── PIPES ── */}
         {/* Incoming → Sorting */}
-        <Pipe d="M 165,135 L 345,135" color="#6366f1" w={4} dur="0.85s" active={active} />
+        <Pipe d="M 165,107 L 345,107" color="#6366f1" w={4} dur="0.85s" active={active} />
         {/* Sorting → E-waste (curve up) */}
-        <Pipe d="M 495,135 C 555,135 550,65 620,65" color="#06b6d4" w={3} dur="0.7s" active={active && ewaste > 0} />
+        <Pipe d="M 495,107 C 555,107 550,46 620,46" color="#06b6d4" w={3} dur="0.7s" active={active && ewaste > 0} />
         {/* Sorting → Dry (straight) */}
-        <Pipe d="M 495,135 L 620,135" color="#3b82f6" w={3.5} dur="0.8s" active={active && dry > 0} />
+        <Pipe d="M 495,107 L 620,107" color="#3b82f6" w={3.5} dur="0.8s" active={active && dry > 0} />
         {/* Sorting → Landfill (curve down) */}
-        <Pipe d="M 495,135 C 555,135 550,205 620,205" color="#475569" w={2} dur="1.2s" active={active && landfill > 0} />
+        <Pipe d="M 495,107 C 555,107 550,168 620,168" color="#475569" w={2} dur="1.2s" active={active && landfill > 0} />
 
         {/* ── INCOMING NODE ── */}
-        <rect x="10" y="93" width="155" height="84" rx="13"
+        <rect x="10" y="72" width="155" height="70" rx="13"
               fill="#080f1e" stroke="#3b82f6" strokeWidth="1.5"
               strokeOpacity={active ? 0.6 : 0.2} />
         {active && (
-          <rect x="10" y="93" width="155" height="84" rx="13" fill="none"
+          <rect x="10" y="72" width="155" height="70" rx="13" fill="none"
                 stroke="#3b82f6" strokeWidth="1" strokeOpacity="0.25"
                 style={{ animation: 'node-glow 3s ease-in-out infinite' }} />
         )}
-        <text x="88" y="118" textAnchor="middle" fill="#93c5fd" fontSize="10.5"
+        <text x="88" y="92" textAnchor="middle" fill="#93c5fd" fontSize="10.5"
               fontWeight="600" fontFamily="system-ui,sans-serif">🚛 INCOMING</text>
-        <text x="88" y="144" textAnchor="middle" fill="white" fontSize="21"
-              fontFamily="monospace" fontWeight="700">{formatKg(total)}</text>
-        <text x="88" y="162" textAnchor="middle" fill="#60a5fa" fontSize="9"
+        <text x="88" y="114" textAnchor="middle" fill="white" fontSize="18"
+              fontFamily="monospace" fontWeight="700">{formatKg(animTotal)}</text>
+        <text x="88" y="130" textAnchor="middle" fill="#60a5fa" fontSize="9"
               fontFamily="system-ui,sans-serif">total collected today</text>
 
         {/* ── SORTING NODE ── */}
-        <rect x="345" y="78" width="150" height="114" rx="14"
+        <rect x="345" y="58" width="150" height="98" rx="14"
               fill="#100b28" stroke="#7c3aed" strokeWidth="1.5"
               strokeOpacity={active ? 0.65 : 0.2} />
-        <GearIcon cx={420} cy={120} active={active} />
-        <text x="420" y="160" textAnchor="middle" fill="#c4b5fd" fontSize="10.5"
+        <GearIcon cx={420} cy={96} active={active} />
+        <text x="420" y="133" textAnchor="middle" fill="#c4b5fd" fontSize="10.5"
               fontWeight="600" fontFamily="system-ui,sans-serif">SORTING</text>
-        <text x="420" y="176" textAnchor="middle" fill="#a78bfa" fontSize="9"
+        <text x="420" y="148" textAnchor="middle" fill="#a78bfa" fontSize="9"
               fontFamily="system-ui,sans-serif">CLASSIFICATION</text>
 
         {/* ── E-WASTE OUTPUT NODE ── */}
-        <rect x="620" y="32" width="230" height="66" rx="11"
+        <rect x="620" y="20" width="230" height="52" rx="11"
               fill="#031620" stroke="#06b6d4" strokeWidth="1.5"
               strokeOpacity={ewaste > 0 ? 0.65 : 0.15} />
-        <text x="735" y="54" textAnchor="middle" fill="#22d3ee" fontSize="11"
+        <text x="735" y="37" textAnchor="middle" fill="#22d3ee" fontSize="11"
               fontWeight="700" fontFamily="system-ui,sans-serif">⚡ E-WASTE</text>
-        <text x="735" y="74" textAnchor="middle" fill="white" fontSize="17"
-              fontFamily="monospace" fontWeight="700">{formatKg(ewaste)}</text>
-        <text x="735" y="89" textAnchor="middle" fill="#67e8f9" fontSize="8.5"
+        <text x="735" y="54" textAnchor="middle" fill="white" fontSize="14"
+              fontFamily="monospace" fontWeight="700">{formatKg(animEwaste)}</text>
+        <text x="735" y="66" textAnchor="middle" fill="#67e8f9" fontSize="8.5"
               fontFamily="system-ui,sans-serif">{pct(ewaste)}%  ·  Certified Recycler</text>
 
         {/* ── DRY WASTE OUTPUT NODE ── */}
-        <rect x="620" y="110" width="230" height="50" rx="11"
+        <rect x="620" y="86" width="230" height="42" rx="11"
               fill="#050f20" stroke="#3b82f6" strokeWidth="1.5"
               strokeOpacity={dry > 0 ? 0.6 : 0.15} />
-        <text x="735" y="131" textAnchor="middle" fill="#93c5fd" fontSize="11"
+        <text x="735" y="103" textAnchor="middle" fill="#93c5fd" fontSize="11"
               fontWeight="700" fontFamily="system-ui,sans-serif">📦 DRY WASTE</text>
-        <text x="735" y="151" textAnchor="middle" fill="white" fontSize="15"
+        <text x="735" y="121" textAnchor="middle" fill="white" fontSize="13"
               fontFamily="monospace" fontWeight="700">
-          {formatKg(dry)}
+          {formatKg(animDry)}
           <tspan fill="#60a5fa" fontSize="9" dx="4">{pct(dry)}%</tspan>
         </text>
 
         {/* ── RESIDUAL OUTPUT NODE ── */}
-        <rect x="620" y="172" width="230" height="66" rx="11"
+        <rect x="620" y="136" width="230" height="64" rx="11"
               fill="#0c0f14" stroke="#475569" strokeWidth="1.5"
               strokeOpacity={landfill > 0 ? 0.5 : 0.15} />
-        <text x="735" y="193" textAnchor="middle" fill="#94a3b8" fontSize="11"
+        <text x="735" y="155" textAnchor="middle" fill="#94a3b8" fontSize="11"
               fontWeight="700" fontFamily="system-ui,sans-serif">🗑️ RESIDUAL</text>
-        <text x="735" y="213" textAnchor="middle" fill="#cbd5e1" fontSize="15"
+        <text x="735" y="174" textAnchor="middle" fill="#cbd5e1" fontSize="13"
               fontFamily="monospace" fontWeight="700">
-          {formatKg(landfill)}
+          {formatKg(animLandfill)}
           <tspan fill="#64748b" fontSize="9" dx="4">{pct(landfill)}%</tspan>
         </text>
-        <text x="735" y="229" textAnchor="middle" fill="#475569" fontSize="8.5"
+        <text x="735" y="189" textAnchor="middle" fill="#475569" fontSize="8.5"
               fontFamily="system-ui,sans-serif">→ Sanitary Landfill</text>
       </svg>
 
@@ -210,6 +216,11 @@ export default function WasteYard() {
   const [composition, setComposition] = useState([])
   const [env, setEnv] = useState(null)
 
+  const animTotalKg  = useCountUp(today?.total_weight_kg ?? 0)
+  const animEwasteKg = useCountUp(today?.ewaste_kg ?? 0)
+  const animDryKg    = useCountUp(today?.dry_waste_kg ?? 0)
+  const animRoutes   = useCountUp(today?.routes_completed ?? 0)
+
   useEffect(() => {
     get('/yard/today').then(setToday).catch(() => {})
     get('/yard/composition').then(d => setComposition(d.breakdown ?? [])).catch(() => {})
@@ -226,10 +237,10 @@ export default function WasteYard() {
 
       {/* Stat row */}
       <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={Package}       label="Total Collected"    value={formatKg(today?.total_weight_kg)} color="blue"   />
-        <StatCard icon={AlertTriangle} label="E-Waste Diverted"   value={formatKg(today?.ewaste_kg)}       color="cyan"   />
-        <StatCard icon={Recycle}       label="Materials Recovered" value={formatKg(today?.dry_waste_kg)}   color="green"  />
-        <StatCard icon={Leaf}          label="Routes Completed"   value={today?.routes_completed ?? 0}     color="violet" />
+        <StatCard icon={Package}       label="Total Collected"     value={formatKg(animTotalKg)}   color="blue"   loading={!today} />
+        <StatCard icon={AlertTriangle} label="E-Waste Diverted"   value={formatKg(animEwasteKg)}  color="cyan"   loading={!today} />
+        <StatCard icon={Recycle}       label="Materials Recovered" value={formatKg(animDryKg)}    color="green"  loading={!today} />
+        <StatCard icon={Leaf}          label="Routes Completed"   value={Math.round(animRoutes)}  color="violet" loading={!today} />
       </div>
 
       {/* Large animated processing flow */}

@@ -8,8 +8,17 @@ const PALETTE = {
   cyan:   { bg: 'bg-cyan-500/10',   border: 'border-cyan-500/20',   text: 'text-cyan-400',   icon: 'bg-cyan-500/20'   },
 }
 
-export default function StatCard({ icon: Icon, label, value, sub, color = 'blue' }) {
+export default function StatCard({ icon: Icon, label, value, sub, color = 'blue', loading = false }) {
   const p = PALETTE[color] ?? PALETTE.blue
+  if (loading) return (
+    <div className={`glass-card flex items-center gap-4 px-5 py-4 ${p.bg} ${p.border} animate-pulse`}>
+      <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-800/70" />
+      <div className="flex-1 space-y-2">
+        <div className="h-2.5 bg-slate-800/70 rounded w-2/3" />
+        <div className="h-5 bg-slate-800/70 rounded w-1/2" />
+      </div>
+    </div>
+  )
   return (
     <div className={`glass-card flex items-center gap-4 px-5 py-4 ${p.bg} ${p.border}`}>
       <div className={`shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${p.icon}`}>

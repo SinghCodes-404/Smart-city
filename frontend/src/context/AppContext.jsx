@@ -59,12 +59,13 @@ function reducer(state, action) {
 
     // ── WebSocket: truck position / status ───────────────────────────
     case 'truck_update': {
-      const { truck_id, status, lat, lng } = action.data
+      const { truck_id, status, lat, lng, load_kg } = action.data
       return {
         ...state,
         trucks: state.trucks.map(t =>
           t.id === truck_id
-            ? { ...t, status, current_lat: lat, current_lng: lng }
+            ? { ...t, status, current_lat: lat, current_lng: lng,
+                ...(load_kg !== undefined ? { current_load_kg: load_kg } : {}) }
             : t
         ),
       }

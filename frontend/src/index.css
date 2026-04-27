@@ -47,6 +47,15 @@ html, body, #root {
   to   { transform: translateX(0);    opacity: 1; }
 }
 
+@keyframes page-enter-anim {
+  from { opacity: 0; transform: translateY(7px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.page-enter { animation: page-enter-anim 0.22s ease-out; }
+
+/* Alert banners slide in from the right */
+.animate-pulse-once { animation: slide-in-right 0.28s ease-out; }
+
 /* ── Leaflet dark overrides ──────────────────────────────────────── */
 .leaflet-container {
   background: #0a0f1e !important;

@@ -2,9 +2,22 @@ import ProgressBar from '../common/ProgressBar'
 import StatusPill from '../common/StatusPill'
 import { getFillLabel, WASTE_COLORS, WASTE_ICONS } from '../../utils/constants'
 import { formatRelativeTime } from '../../utils/formatters'
+import { useApp } from '../../context/AppContext'
 
 export default function BinPopup({ bin }) {
+  const { state } = useApp()
   const fillLabel = getFillLabel(bin.current_fill_pct)
+
+  // Compute composition from the live rolling event buffer (last 50 events globally).
+  // This gives real-time classification results without an extra API call.
+  const liveComposition = state.events
+    .filter(e => e.bin_id === bin.id)
+    .reduce((acc, e) => ({ ...acc, [e.label]: (acc[e.label] ?? 0) + 1 }), {})
+
+  // Fall back to static composition from initial API load if no live events yet
+  const composition = Object.keys(liveComposition).length > 0
+    ? liveComposition
+    : (bin.recent_composition ?? {})
 
   return (
     <div className="p-4 min-w-[230px]">
@@ -33,11 +46,11 @@ export default function BinPopup({ bin }) {
       </div>
 
       {/* Recent composition */}
-      {bin.recent_composition && Object.keys(bin.recent_composition).length > 0 && (
+      {Object.keys(composition).length > 0 && (
         <div className="mb-3">
           <p className="text-xs text-slate-500 mb-1.5">Recent composition</p>
           <div className="flex flex-wrap gap-1.5">
-            {Object.entries(bin.recent_composition).map(([label, count]) => (
+            {Object.entries(composition).map(([label, count]) => (
               <span key={label}
                     className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border"
                     style={{ color: WASTE_COLORS[label] ?? '#94a3b8', borderColor: (WASTE_COLORS[label] ?? '#94a3b8') + '40', background: (WASTE_COLORS[label] ?? '#94a3b8') + '10' }}>

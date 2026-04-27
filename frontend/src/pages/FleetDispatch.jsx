@@ -119,17 +119,17 @@ export default function FleetDispatch() {
 
   const activeTrucks  = state.trucks.filter(t => t.status !== 'idle').length
   const idleTrucks    = state.trucks.filter(t => t.status === 'idle').length
-  const pendingBins   = state.bins.filter(b => b.current_fill_pct >= 70 && !b.is_hardware).length
+  const pendingBins   = state.bins.filter(b => b.current_fill_pct >= 70).length
   const avgRouteKm    = routes.length ? (routes.reduce((s,r) => s + r.distance_km, 0) / routes.length).toFixed(1) : 0
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Stats */}
       <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3 px-4 pt-3 pb-2">
-        <StatCard icon={Truck}      label="Active Trucks"  value={activeTrucks}  sub={`${idleTrucks} idle`}    color="blue"   />
-        <StatCard icon={Navigation} label="Active Routes"  value={routes.length} sub="collecting now"          color="violet" />
-        <StatCard icon={Route}      label="Avg Route"      value={`${avgRouteKm} km`} sub="nearest-neighbor"  color="cyan"   />
-        <StatCard icon={Zap}        label="Pending Bins"   value={pendingBins}   sub="≥70% fill"               color={pendingBins > 3 ? 'red' : 'amber'} />
+        <StatCard icon={Truck}      label="Active Trucks"  value={activeTrucks}       sub={`${idleTrucks} idle`}  color="blue"   loading={!state.trucks.length} />
+        <StatCard icon={Navigation} label="Active Routes"  value={routes.length}      sub="collecting now"        color="violet" />
+        <StatCard icon={Route}      label="Avg Route"      value={`${avgRouteKm} km`} sub="nearest-neighbor"     color="cyan"   />
+        <StatCard icon={Zap}        label="Pending Bins"   value={pendingBins}        sub="≥70% fill"            color={pendingBins > 3 ? 'red' : 'amber'} loading={!state.bins.length} />
       </div>
 
       {/* Map + queue */}

@@ -6,6 +6,7 @@ import {
 } from 'recharts'
 import { useApi } from '../hooks/useApi'
 import { useApp } from '../context/AppContext'
+import { useCountUp } from '../hooks/useCountUp'
 import StatCard from '../components/Layout/StatCard'
 import ProgressBar from '../components/common/ProgressBar'
 import StatusPill from '../components/common/StatusPill'
@@ -160,15 +161,20 @@ export default function Analytics() {
   const liveSummary = state.summary ?? summary
   const criticalColor = (liveSummary?.critical_bins ?? 0) > 0 ? 'red' : 'green'
 
+  const animActiveBins = useCountUp(liveSummary?.active_bins ?? 0)
+  const animAvgFill    = useCountUp(liveSummary?.avg_fill_pct ?? 0)
+  const animCritical   = useCountUp(liveSummary?.critical_bins ?? 0)
+  const animItems      = useCountUp(liveSummary?.items_today ?? 0)
+
   return (
     <div className="flex flex-col gap-3 h-full overflow-y-auto px-4 py-3">
 
       {/* Stats — critical bins gets red treatment when non-zero */}
       <div className="shrink-0 grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard icon={Layers}        label="Active Bins"   value={liveSummary?.active_bins ?? '—'}               color="blue"        />
-        <StatCard icon={TrendingUp}    label="Avg Fill"      value={`${liveSummary?.avg_fill_pct ?? 0}%`}           color="violet"      />
-        <StatCard icon={AlertTriangle} label="Critical Bins" value={liveSummary?.critical_bins ?? 0}               color={criticalColor} />
-        <StatCard icon={Cpu}           label="Items Today"   value={liveSummary?.items_today ?? 0}                 color="cyan"        />
+        <StatCard icon={Layers}        label="Active Bins"   value={Math.round(animActiveBins)} color="blue"          loading={!liveSummary} />
+        <StatCard icon={TrendingUp}    label="Avg Fill"      value={`${Math.round(animAvgFill)}%`} color="violet"       loading={!liveSummary} />
+        <StatCard icon={AlertTriangle} label="Critical Bins" value={Math.round(animCritical)}    color={criticalColor} loading={!liveSummary} />
+        <StatCard icon={Cpu}           label="Items Today"   value={Math.round(animItems)}       color="cyan"          loading={!liveSummary} />
       </div>
 
       {/* Daily volume chart — full width */}

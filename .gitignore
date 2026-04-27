@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+backend/venv/
+*.egg-info/
+
+# Node
+node_modules/
+.npm/
+
+# Build outputs (keep dist for direct deployment)
+# frontend/dist/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+Thumbs.db
+
+# Logs
+*.log

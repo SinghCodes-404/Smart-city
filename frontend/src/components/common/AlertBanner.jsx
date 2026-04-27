@@ -1,4 +1,5 @@
 import { X, AlertTriangle, Truck, CheckCircle } from 'lucide-react'
+import { useEffect } from 'react'
 import { useApp } from '../../context/AppContext'
 import { formatRelativeTime } from '../../utils/formatters'
 
@@ -12,6 +13,11 @@ function Banner({ alert }) {
   const { dispatch } = useApp()
   const cfg = ICONS[alert.reason] ?? ICONS.fill_threshold
   const Icon = cfg.icon
+
+  useEffect(() => {
+    const t = setTimeout(() => dispatch({ type: 'DISMISS_ALERT', id: alert.id }), 7000)
+    return () => clearTimeout(t)
+  }, [alert.id, dispatch])
 
   const msg = alert.reason === 'fill_threshold'
     ? `${alert.bin_id} reached ${alert.threshold_pct}% fill — dispatch queued`

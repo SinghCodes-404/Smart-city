@@ -95,13 +95,12 @@ async def trigger_dispatch(db: Session = Depends(get_db)):
         for bid in json.loads(r.bin_sequence):
             already_dispatched.add(bid)
 
-    # Collect non-hardware bins above threshold not already dispatched
+    # Collect all bins above threshold not already dispatched (including hardware bins)
     pending_bins = (
         db.query(Bin)
         .filter(
             Bin.current_fill_pct >= 70.0,
             Bin.status == "active",
-            Bin.is_hardware.is_(False),
             Bin.id.notin_(already_dispatched),
         )
         .order_by(Bin.current_fill_pct.desc())

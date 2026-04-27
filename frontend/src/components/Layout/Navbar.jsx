@@ -1,13 +1,15 @@
 import { NavLink } from 'react-router-dom'
-import { Map, Truck, Factory, BarChart3, Wifi, WifiOff, Play, Square, Zap, Cpu } from 'lucide-react'
+import { Map, Truck, Factory, BarChart3, Radio, Wifi, WifiOff, Play, Square, Zap, Cpu, RotateCcw } from 'lucide-react'
+import { useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import { useApi } from '../../hooks/useApi'
 
 const TABS = [
-  { to: '/',          label: 'City Map',       icon: Map       },
-  { to: '/fleet',     label: 'Fleet Dispatch', icon: Truck     },
-  { to: '/yard',      label: 'Waste Yard',     icon: Factory   },
-  { to: '/analytics', label: 'Analytics',      icon: BarChart3 },
+  { to: '/',           label: 'City Map',       icon: Map       },
+  { to: '/fleet',      label: 'Fleet Dispatch', icon: Truck     },
+  { to: '/yard',       label: 'Waste Yard',     icon: Factory   },
+  { to: '/analytics',  label: 'Analytics',      icon: BarChart3 },
+  { to: '/edge-node',  label: 'Edge Node',      icon: Radio     },
 ]
 
 const WS_CONFIG = {
@@ -19,7 +21,8 @@ const WS_CONFIG = {
 
 export default function Navbar() {
   const { state, dispatch } = useApp()
-  const { post } = useApi()
+  const { post, get } = useApi()
+  const [demoResetting, setDemoResetting] = useState(false)
 
   const ws = WS_CONFIG[state.wsStatus] ?? WS_CONFIG.disconnected
   const sim = state.simStatus
@@ -40,6 +43,18 @@ export default function Navbar() {
       const result = await post('/simulation/speed', { multiplier: next })
       dispatch({ type: 'SIM_STATUS', payload: result })
     } catch (e) { console.error(e) }
+  }
+
+  const handleDemoReset = async () => {
+    setDemoResetting(true)
+    try {
+      const result = await post('/simulation/demo-reset')
+      dispatch({ type: 'SIM_STATUS', payload: result })
+      const [bins, trucks] = await Promise.all([get('/bins'), get('/trucks')])
+      dispatch({ type: 'INIT_BINS',   payload: bins })
+      dispatch({ type: 'INIT_TRUCKS', payload: trucks })
+    } catch (e) { console.error(e) }
+    finally { setDemoResetting(false) }
   }
 
   return (
@@ -108,6 +123,16 @@ export default function Navbar() {
               : 'bg-blue-500/15 text-blue-400 border border-blue-500/25 hover:bg-blue-500/25'
           }`}>
           {sim.running ? <><Square size={11} fill="currentColor" /> Stop</> : <><Play size={11} fill="currentColor" /> Simulate</>}
+        </button>
+
+        {/* Demo Reset — wipes data, pre-fills bins at varied levels, restarts */}
+        <button
+          onClick={handleDemoReset}
+          disabled={demoResetting}
+          title="Wipe all data and restart with demo-ready bin fill levels"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 bg-amber-500/12 text-amber-400 border border-amber-500/25 hover:bg-amber-500/22 disabled:opacity-50 disabled:cursor-not-allowed">
+          <RotateCcw size={11} className={demoResetting ? 'animate-spin' : ''} />
+          <span className="hidden sm:inline">{demoResetting ? 'Resetting…' : 'Demo'}</span>
         </button>
       </div>
     </nav>
